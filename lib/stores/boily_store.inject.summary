@@ -1,0 +1,8 @@
+{
+  "asset": "asset:boily/lib/stores/boily_store.dart",
+  "summary": {
+    "injector": [],
+    "module": [],
+    "injectable": []
+  }
+}

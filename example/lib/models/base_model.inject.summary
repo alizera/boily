@@ -1,8 +1,0 @@
-{
-  "asset": "asset:boily/example/lib/models/base_model.dart",
-  "summary": {
-    "injector": [],
-    "module": [],
-    "injectable": []
-  }
-}

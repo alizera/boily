@@ -9,21 +9,30 @@ import 'boily_error_store.dart';
 part 'boily_store.g.dart';
 
 enum StoreStatus {
+  // to be safe in states
   none,
+  // to show full screen loading
   fetching,
+  // to show overlay loading
   loading,
+  // to handle success response from API
   success,
+  // to handle APIs errors and show full screen error
   error,
+  // to handle errors and show overlay error (snack)
   warn,
+  // to show given empty widget
   empty,
 }
 
 class BoilyStore = _BoilyStore with _$BoilyStore;
 
 abstract class _BoilyStore with Store {
-
   @observable
-  StoreStatus status = StoreStatus.none;
+  StoreStatus _status = StoreStatus.none;
+
+  @computed
+  StoreStatus get status => _status;
 
   @computed
   bool get isLoading => status == StoreStatus.loading;
@@ -77,14 +86,14 @@ abstract class _BoilyStore with Store {
 
   @action
   void resetStore() {
-    status = StoreStatus.none;
+    _status = StoreStatus.none;
     errorStore.resetSnackError();
   }
 
   @protected
   @action
   void onFetch({Function doMore}) {
-    status = StoreStatus.fetching;
+    _status = StoreStatus.fetching;
     if (doMore != null) doMore();
     if (isDisconnected) errorStore.resetSnackError();
   }
@@ -92,7 +101,7 @@ abstract class _BoilyStore with Store {
   @protected
   @action
   void onRequest({Function doMore}) {
-    status = StoreStatus.loading;
+    _status = StoreStatus.loading;
     if (doMore != null) doMore();
     if (isDisconnected) errorStore.resetSnackError();
   }
@@ -100,7 +109,7 @@ abstract class _BoilyStore with Store {
   @protected
   @action
   void onSuccess({Function doMore}) {
-    status = StoreStatus.success;
+    _status = StoreStatus.success;
     errorStore.errorMessage = null;
     if (doMore != null) doMore();
   }
@@ -108,7 +117,7 @@ abstract class _BoilyStore with Store {
   @protected
   @action
   void onError({@required String error, Function doMore}) {
-    status = StoreStatus.error;
+    _status = StoreStatus.error;
     errorStore.errorMessage = (error != null && error.isNotEmpty)
         ? error
         : 'متاسفانه خطایی رخ داده است!';
@@ -118,10 +127,17 @@ abstract class _BoilyStore with Store {
   @protected
   @action
   void onWarn({@required String warn, Function doMore}) {
-    status = StoreStatus.warn;
+    _status = StoreStatus.warn;
     errorStore.snackError = (warn != null && warn.isNotEmpty)
         ? warn
         : 'متاسفانه خطایی رخ داده است!';
+    if (doMore != null) doMore();
+  }
+
+  @protected
+  @action
+  void onEmpty({Function doMore}) {
+    _status = StoreStatus.empty;
     if (doMore != null) doMore();
   }
 

@@ -1,30 +1,40 @@
 import 'package:boily/stores/boily_store.dart';
-import 'package:boily/widgets/try_again_widget.dart';
+import 'package:boily/widgets/boily_try_again_widget.dart';
 import 'package:flushbar/flushbar_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
+import '../boily.dart';
+
 class BoilyWidget extends StatefulWidget {
   final Widget child;
   final BoilyStore store;
   final EdgeInsets padding;
   final Widget emptyBody;
-  final bool useCustomLoading;
+  final bool handleFetchAndErrorStatesLocally;
   final VoidCallback onTryAgain;
+  final String tryAgainText;
+  final Widget customFetchingWidget;
+  final Widget customErrorWidget;
+  final String emptyText;
 
   List<ReactionDisposer> _reactions;
   BuildContext context;
 
   BoilyWidget({
     Key key,
-    @required this.child,
     @required this.store,
+    @required this.child,
     this.padding,
     this.emptyBody,
-    this.useCustomLoading = false,
+    this.handleFetchAndErrorStatesLocally = false,
     this.onTryAgain,
+    this.tryAgainText,
+    this.customFetchingWidget,
+    this.customErrorWidget,
+    this.emptyText,
   }) : super(key: key) {
     _reactions = [
       reaction((_) => store.errorStore.snackError, (String snackError) {
@@ -57,6 +67,7 @@ class BoilyWidget extends StatefulWidget {
   void dispose() {
     print("dispose base page");
     _reactions?.forEach((element) => element());
+    store.dispose();
   }
 
   @override
@@ -80,7 +91,7 @@ class _BoilyWidgetState extends State<BoilyWidget> {
   Widget build(BuildContext context) {
     widget.context = context;
     return Observer(
-        builder: (_) => widget.useCustomLoading
+        builder: (_) => widget.handleFetchAndErrorStatesLocally
             ? buildMainBody(context)
             : ModalProgressHUD(
                 inAsyncCall: widget.store.isLoading,
@@ -92,25 +103,39 @@ class _BoilyWidgetState extends State<BoilyWidget> {
   Widget buildMainBody(BuildContext context) {
     switch (widget.store.status) {
       case StoreStatus.error:
+        if (widget.handleFetchAndErrorStatesLocally) {
+          return buildChild();
+        }
         return Center(
-            child: TryAgainWidget(
+            child: BoilyTryAgainWidget(
           errorMessage: widget.store.errorStore.errorMessage,
           onTryAgain: widget.onTryAgain,
+          buttonText: widget.tryAgainText,
         ));
       case StoreStatus.fetching:
+        if (widget.handleFetchAndErrorStatesLocally) {
+          return buildChild();
+        }
         return const Center(
-          child: CircularProgressIndicator(),
+          child: Padding(
+              padding: EdgeInsets.all(20), child: CircularProgressIndicator()),
         );
       case StoreStatus.none:
       case StoreStatus.success:
       case StoreStatus.loading:
       case StoreStatus.warn:
-        return Container(padding: widget.padding, child: widget.child);
+        return buildChild();
       case StoreStatus.empty:
         return widget.emptyBody ??
-            const Center(
-              child: Text('Empty!'),
+            Center(
+              child:
+                  Text(widget.emptyText ?? Boily.emptyWidgetMessage ?? 'Empty!'),
             );
     }
+
+  }
+
+  Widget buildChild() {
+    return Container(padding: widget.padding, child: widget.child);
   }
 }

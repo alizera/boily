@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:boily/boily.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mobx/mobx.dart';
@@ -71,12 +72,23 @@ abstract class _BoilyStore with Store {
         .then((value) => isDisconnected = value == ConnectivityResult.none);
     _connectionSubscription =
         _connectivity.onConnectivityChanged.listen((event) {
-      print('connection: $event');
-      isDisconnected = event == ConnectivityResult.none;
-      if (isDisconnected) {
-        errorStore.snackError = 'connection';
-      }
+          handleConnection(event);
     });
+  }
+
+  @action
+  void handleConnection(ConnectivityResult event){
+    print('connection: $event');
+    isDisconnected = event == ConnectivityResult.none;
+    if (isDisconnected) {
+      onWarn(warn: Boily.disconnectMessage ?? 'Internet Connection Lost...');
+      if (isFetching) {
+        onError(
+            error: Boily.disconnectMessage ?? 'Internet Connection Lost...');
+//          errorStore.errorMessage =
+//              Boily.disconnectMessage ?? 'Internet Connection Lost...';
+      }
+    }
   }
 
   void dispose() {
@@ -93,17 +105,27 @@ abstract class _BoilyStore with Store {
   @protected
   @action
   void onFetch({Function doMore}) {
-    _status = StoreStatus.fetching;
+    if (isDisconnected) {
+      errorStore.resetSnackError();
+      errorStore.errorMessage =
+          Boily.disconnectMessage ?? 'Internet Connection Lost...';
+    } else {
+      _status = StoreStatus.fetching;
+    }
     if (doMore != null) doMore();
-    if (isDisconnected) errorStore.resetSnackError();
   }
 
   @protected
   @action
   void onRequest({Function doMore}) {
-    _status = StoreStatus.loading;
+    if (isDisconnected) {
+      errorStore.resetSnackError();
+      errorStore.snackError =
+          Boily.disconnectMessage ?? 'Internet Connection Lost...';
+    } else {
+      _status = StoreStatus.loading;
+    }
     if (doMore != null) doMore();
-    if (isDisconnected) errorStore.resetSnackError();
   }
 
   @protected

@@ -1,6 +1,7 @@
+import 'package:boily/boily.dart';
 import 'package:flutter/material.dart';
 
-class TryAgainWidget extends StatelessWidget {
+class BoilyTryAgainWidget extends StatelessWidget {
   final String buttonText;
   final String errorMessage;
   final VoidCallback onTryAgain;
@@ -8,7 +9,7 @@ class TryAgainWidget extends StatelessWidget {
 
   final TextStyle buttonTextStyle;
 
-  const TryAgainWidget({
+  const BoilyTryAgainWidget({
     Key key,
     @required this.errorMessage,
     this.onTryAgain,
@@ -30,7 +31,7 @@ class TryAgainWidget extends StatelessWidget {
           FlatButton(
               onPressed: () => onTryAgain(),
               child: Text(
-                buttonText ?? 'Try Again',
+                buttonText ?? Boily.tryAgainButtonText ?? 'Try Again',
                 style: buttonTextStyle,
               ))
       ],

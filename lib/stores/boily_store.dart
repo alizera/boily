@@ -98,19 +98,20 @@ abstract class _BoilyStore with Store {
 
   @action
   void resetStore() {
-    _status = StoreStatus.none;
+    print('store reset');
+    setStatus(StoreStatus.none);
     errorStore.resetSnackError();
   }
 
   @protected
   @action
   void onFetch({Function doMore}) {
+    print('store onFetch');
     if (isDisconnected) {
-      errorStore.resetSnackError();
       errorStore.errorMessage =
           Boily.disconnectMessage ?? 'Internet Connection Lost...';
     } else {
-      _status = StoreStatus.fetching;
+      setStatus(StoreStatus.fetching);
     }
     if (doMore != null) doMore();
   }
@@ -118,12 +119,12 @@ abstract class _BoilyStore with Store {
   @protected
   @action
   void onRequest({Function doMore}) {
+    print('store onRequest');
     if (isDisconnected) {
-      errorStore.resetSnackError();
       errorStore.snackError =
           Boily.disconnectMessage ?? 'Internet Connection Lost...';
     } else {
-      _status = StoreStatus.loading;
+      setStatus(StoreStatus.loading);
     }
     if (doMore != null) doMore();
   }
@@ -131,7 +132,8 @@ abstract class _BoilyStore with Store {
   @protected
   @action
   void onSuccess({Function doMore}) {
-    _status = StoreStatus.success;
+    print('store onSuccess');
+    setStatus(StoreStatus.success);
     errorStore.errorMessage = null;
     if (doMore != null) doMore();
   }
@@ -139,7 +141,8 @@ abstract class _BoilyStore with Store {
   @protected
   @action
   void onError({@required String error, Function doMore}) {
-    _status = StoreStatus.error;
+    print('store onError, error: $error');
+    setStatus(StoreStatus.error);
     errorStore.errorMessage = (error != null && error.isNotEmpty)
         ? error
         : 'متاسفانه خطایی رخ داده است!';
@@ -149,7 +152,8 @@ abstract class _BoilyStore with Store {
   @protected
   @action
   void onWarn({@required String warn, Function doMore}) {
-    _status = StoreStatus.warn;
+    print('store onWarn, error: $warn');
+    setStatus(StoreStatus.warn);
     errorStore.snackError = (warn != null && warn.isNotEmpty)
         ? warn
         : 'متاسفانه خطایی رخ داده است!';
@@ -159,8 +163,16 @@ abstract class _BoilyStore with Store {
   @protected
   @action
   void onEmpty({Function doMore}) {
-    _status = StoreStatus.empty;
+    print('store onEmpty');
+    setStatus(StoreStatus.empty);
     if (doMore != null) doMore();
+  }
+
+  @protected
+  @action
+  void setStatus(StoreStatus status) {
+    print('storeStatus: $status');
+    _status = status;
   }
 
   @action

@@ -18,6 +18,8 @@ abstract class _BoilyFormStore with Store {
 
   void reset() {}
 
+  void saveDraft() {}
+
   bool isValid() {
     isValidated = true;
     var isValid = true;

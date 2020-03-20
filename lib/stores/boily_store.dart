@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:boily/boily.dart';
+import 'package:boily/stores/boily_form_store.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mobx/mobx.dart';
@@ -29,6 +30,9 @@ enum StoreStatus {
 class BoilyStore = _BoilyStore with _$BoilyStore;
 
 abstract class _BoilyStore with Store {
+
+  List<BoilyFormStore> _boilyFormStores;
+
   @observable
   StoreStatus _status = StoreStatus.none;
 
@@ -73,11 +77,17 @@ abstract class _BoilyStore with Store {
     _connectionSubscription =
         _connectivity.onConnectivityChanged.listen((event) {
           handleConnection(event);
-    });
+        });
+  }
+
+  // ignore: use_setters_to_change_properties
+  @protected
+  void initForm(List<BoilyFormStore> boilyFormStores) {
+    _boilyFormStores = boilyFormStores;
   }
 
   @action
-  void handleConnection(ConnectivityResult event){
+  void handleConnection(ConnectivityResult event) {
     print('connection: $event');
     isDisconnected = event == ConnectivityResult.none;
     if (isDisconnected) {
@@ -93,14 +103,12 @@ abstract class _BoilyStore with Store {
 
   void dispose() {
     print('base store dispose');
-    _connectionSubscription.cancel();
-  }
-
-  @action
-  void resetStore() {
-    print('store reset');
     setStatus(StoreStatus.none);
-    errorStore.resetSnackError();
+    errorStore.resetErrors();
+    successSnack = null;
+    infoSnack = null;
+    _boilyFormStores?.forEach((element) => element.reset());
+    _connectionSubscription.cancel();
   }
 
   @protected
@@ -108,8 +116,7 @@ abstract class _BoilyStore with Store {
   void onFetch({Function doMore}) {
     print('store onFetch');
     if (isDisconnected) {
-      errorStore.errorMessage =
-          Boily.disconnectMessage ?? 'Internet Connection Lost...';
+      onError(error: Boily.disconnectMessage ?? 'Internet Connection Lost...');
     } else {
       setStatus(StoreStatus.fetching);
     }
@@ -121,8 +128,7 @@ abstract class _BoilyStore with Store {
   void onRequest({Function doMore}) {
     print('store onRequest');
     if (isDisconnected) {
-      errorStore.snackError =
-          Boily.disconnectMessage ?? 'Internet Connection Lost...';
+      onError(error: Boily.disconnectMessage ?? 'Internet Connection Lost...');
     } else {
       setStatus(StoreStatus.loading);
     }
@@ -143,8 +149,10 @@ abstract class _BoilyStore with Store {
   void onError({@required String error, Function doMore}) {
     print('store onError, error: $error');
     setStatus(StoreStatus.error);
-    errorStore.errorMessage = (error != null && error.isNotEmpty)
+    errorStore.errorMessage = (error?.isNotEmpty ?? false)
         ? error
+        : (Boily.errorMessage?.isNotEmpty ?? false)
+        ? Boily.errorMessage
         : 'متاسفانه خطایی رخ داده است!';
     if (doMore != null) doMore();
   }

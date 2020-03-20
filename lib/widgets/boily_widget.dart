@@ -42,7 +42,7 @@ class BoilyWidget extends StatefulWidget {
           print('snackError: $snackError');
           FlushbarHelper.createError(message: snackError)
               .show(context)
-              .then((value) => store.errorStore.resetSnackError());
+              .then((value) => store.errorStore.resetErrors());
         }
       }),
       reaction((_) => store.successSnack, (String successMessage) {
@@ -67,7 +67,6 @@ class BoilyWidget extends StatefulWidget {
   void dispose() {
     print("dispose base page");
     _reactions?.forEach((element) => element());
-    store.dispose();
   }
 
   @override

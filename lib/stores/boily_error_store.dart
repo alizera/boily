@@ -5,10 +5,8 @@ part 'boily_error_store.g.dart';
 class BoilyErrorStore = _BoilyErrorStore with _$BoilyErrorStore;
 
 abstract class _BoilyErrorStore with Store {
-  // constructor:---------------------------------------------------------------
   _BoilyErrorStore();
 
-  // store variables:-----------------------------------------------------------
   @observable
   String snackError;
 
@@ -16,8 +14,9 @@ abstract class _BoilyErrorStore with Store {
   String errorMessage;
 
   @action
-  void resetSnackError() {
-    print('resetSnackError');
+  void resetErrors() {
+    print('BoilyErrorStore: resetErrors');
     snackError = null;
+    errorMessage = null;
   }
 }

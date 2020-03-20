@@ -61,38 +61,14 @@ class _BoilyWidgetState extends State<BoilyWidget> {
   void didChangeDependencies() {
     _messageStore ??= Provider.of<BoilyMessageStore>(context);
     _reactions ??= [
-      reaction((_) => _messageStore.infoMessage, (String infoMessage) {
-        _log('infoMessage: $infoMessage');
-        if (infoMessage != null && infoMessage.isNotEmpty) {
-          FlushbarHelper.createSuccess(message: infoMessage)
+      reaction((_) => widget.store.errorStore.snackError, (String snackError) {
+        if (snackError != null && snackError.isNotEmpty) {
+          _log('snackError: $snackError');
+          FlushbarHelper.createError(message: snackError)
               .show(context)
-              .then((value) => _messageStore.resetInfoSnack());
+              .then((value) => widget.store.errorStore.resetErrors());
         }
       }),
-//      reaction((_) => widget.store.errorStore.snackError, (String snackError) {
-//        if (snackError != null && snackError.isNotEmpty) {
-//          _log('snackError: $snackError');
-//          FlushbarHelper.createError(message: snackError)
-//              .show(context)
-//              .then((value) => widget.store.errorStore.resetErrors());
-//        }
-//      }),
-//      reaction((_) => widget.store.successSnack, (String successMessage) {
-//        _log('successMessage: $successMessage');
-//        if (successMessage != null && successMessage.isNotEmpty) {
-//          FlushbarHelper.createSuccess(message: successMessage)
-//              .show(context)
-//              .then((value) => widget.store.resetSuccessSnack());
-//        }
-//      }),
-//      reaction((_) => widget.store.infoSnack, (String infoMessage) {
-//        _log('infoMessage: $infoMessage');
-//        if (infoMessage != null && infoMessage.isNotEmpty) {
-//          FlushbarHelper.createSuccess(message: infoMessage)
-//              .show(context)
-//              .then((value) => widget.store.resetInfoSnack());
-//        }
-//      }),
     ];
 
     super.didChangeDependencies();

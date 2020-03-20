@@ -8,8 +8,22 @@ abstract class _BoilyMessageStore with Store {
   @observable
   String infoMessage;
 
+  @observable
+  String successMessage;
+
   @action
-  void resetInfoSnack() {
+  void resetInfoMessage() {
     infoMessage = null;
+  }
+
+  @action
+  void resetSuccessMessage() {
+    successMessage = null;
+  }
+
+  @action
+  void resetAllMessages() {
+    resetInfoMessage();
+    resetSuccessMessage();
   }
 }

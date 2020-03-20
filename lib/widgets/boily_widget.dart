@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:boily/stores/boily_message_store.dart';
 import 'package:boily/stores/boily_store.dart';
 import 'package:boily/widgets/boily_try_again_widget.dart';
 import 'package:flushbar/flushbar_helper.dart';
@@ -7,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
+import 'package:provider/provider.dart';
 
 import '../boily.dart';
 
@@ -21,9 +23,7 @@ class BoilyWidget extends StatefulWidget {
   final Widget customFetchingWidget;
   final Widget customErrorWidget;
   final String emptyText;
-
-  List<ReactionDisposer> _reactions;
-  BuildContext context;
+  final String tag;
 
   BoilyWidget({
     Key key,
@@ -37,59 +37,77 @@ class BoilyWidget extends StatefulWidget {
     this.customFetchingWidget,
     this.customErrorWidget,
     this.emptyText,
-  }) : super(key: key) {
-    _reactions = [
-      reaction((_) => store.errorStore.snackError, (String snackError) {
-        if (snackError != null && snackError.isNotEmpty) {
-          log('snackError: $snackError');
-          FlushbarHelper.createError(message: snackError)
-              .show(context)
-              .then((value) => store.errorStore.resetErrors());
-        }
-      }),
-      reaction((_) => store.successSnack, (String successMessage) {
-        log('successMessage: $successMessage');
-        if (successMessage != null && successMessage.isNotEmpty) {
-          FlushbarHelper.createSuccess(message: successMessage)
-              .show(context)
-              .then((value) => store.resetSuccessSnack());
-        }
-      }),
-      reaction((_) => store.infoSnack, (String successMessage) {
-        log('infoMessage: $successMessage');
-        if (successMessage != null && successMessage.isNotEmpty) {
-          FlushbarHelper.createSuccess(message: successMessage)
-              .show(context)
-              .then((value) => store.resetInfoSnack());
-        }
-      }),
-    ];
-  }
-
-  void dispose() {
-    log("BoilyWidget -> dispose");
-    _reactions?.forEach((element) => element());
-  }
+    this.tag = '',
+  }) : super(key: key);
 
   @override
   _BoilyWidgetState createState() => _BoilyWidgetState();
 }
 
 class _BoilyWidgetState extends State<BoilyWidget> {
+  List<ReactionDisposer> _reactions;
+  BoilyMessageStore _messageStore;
+
+  void _log(String message) {
+    String finalMessage = 'BoilyWidget';
+    if (widget.tag?.isNotEmpty ?? false) {
+      finalMessage += ' (${widget.tag})';
+    }
+    finalMessage += ' -> $message';
+    log(finalMessage);
+  }
+
   @override
   void didChangeDependencies() {
+    _messageStore ??= Provider.of<BoilyMessageStore>(context);
+    _reactions ??= [
+      reaction((_) => _messageStore.infoMessage, (String infoMessage) {
+        _log('infoMessage: $infoMessage');
+        if (infoMessage != null && infoMessage.isNotEmpty) {
+          FlushbarHelper.createSuccess(message: infoMessage)
+              .show(context)
+              .then((value) => _messageStore.resetInfoSnack());
+        }
+      }),
+//      reaction((_) => widget.store.errorStore.snackError, (String snackError) {
+//        if (snackError != null && snackError.isNotEmpty) {
+//          _log('snackError: $snackError');
+//          FlushbarHelper.createError(message: snackError)
+//              .show(context)
+//              .then((value) => widget.store.errorStore.resetErrors());
+//        }
+//      }),
+//      reaction((_) => widget.store.successSnack, (String successMessage) {
+//        _log('successMessage: $successMessage');
+//        if (successMessage != null && successMessage.isNotEmpty) {
+//          FlushbarHelper.createSuccess(message: successMessage)
+//              .show(context)
+//              .then((value) => widget.store.resetSuccessSnack());
+//        }
+//      }),
+//      reaction((_) => widget.store.infoSnack, (String infoMessage) {
+//        _log('infoMessage: $infoMessage');
+//        if (infoMessage != null && infoMessage.isNotEmpty) {
+//          FlushbarHelper.createSuccess(message: infoMessage)
+//              .show(context)
+//              .then((value) => widget.store.resetInfoSnack());
+//        }
+//      }),
+    ];
+
     super.didChangeDependencies();
   }
 
   @override
   void dispose() {
-    widget.dispose();
+    _log('dispose');
+    _reactions?.forEach((element) => element());
+    widget.store.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    widget.context = context;
     return Observer(
         builder: (_) => widget.handleFetchAndErrorStatesLocally
             ? buildMainBody(context)
@@ -128,8 +146,8 @@ class _BoilyWidgetState extends State<BoilyWidget> {
       case StoreStatus.empty:
         return widget.emptyBody ??
             Center(
-              child:
-              Text(widget.emptyText ?? Boily.emptyWidgetMessage ?? 'Empty!'),
+              child: Text(
+                  widget.emptyText ?? Boily.emptyWidgetMessage ?? 'Empty!'),
             );
     }
   }

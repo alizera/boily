@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:boily/boily.dart';
 import 'package:boily/stores/boily_form_store.dart';
+import 'package:boily/stores/boily_message_store.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mobx/mobx.dart';
@@ -33,6 +34,8 @@ class BoilyStore = _BoilyStore with _$BoilyStore;
 abstract class _BoilyStore with Store {
 
   List<BoilyFormStore> _boilyFormStores;
+
+  final BoilyMessageStore messageStore;
 
   @observable
   StoreStatus _status = StoreStatus.none;
@@ -71,7 +74,7 @@ abstract class _BoilyStore with Store {
   final Connectivity _connectivity = Connectivity();
   StreamSubscription<ConnectivityResult> _connectionSubscription;
 
-  _BoilyStore() {
+  _BoilyStore(this.messageStore) {
     _connectivity
         .checkConnectivity()
         .then((value) => isDisconnected = value == ConnectivityResult.none);
@@ -105,9 +108,8 @@ abstract class _BoilyStore with Store {
   void dispose() {
     log('BoilyStore -> dispose');
     setStatus(StoreStatus.none);
+    resetSnacks();
     errorStore.resetErrors();
-    successSnack = null;
-    infoSnack = null;
     _boilyFormStores?.forEach((element) => element.reset());
     _connectionSubscription.cancel();
   }

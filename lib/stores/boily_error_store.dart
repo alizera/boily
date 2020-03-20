@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:mobx/mobx.dart';
 
 part 'boily_error_store.g.dart';
@@ -15,7 +17,7 @@ abstract class _BoilyErrorStore with Store {
 
   @action
   void resetErrors() {
-    print('BoilyErrorStore: resetErrors');
+    log('BoilyErrorStore -> resetErrors');
     snackError = null;
     errorMessage = null;
   }

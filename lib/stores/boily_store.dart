@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:boily/boily.dart';
 import 'package:boily/stores/boily_form_store.dart';
@@ -88,7 +89,7 @@ abstract class _BoilyStore with Store {
 
   @action
   void handleConnection(ConnectivityResult event) {
-    print('connection: $event');
+    log('connection: $event');
     isDisconnected = event == ConnectivityResult.none;
     if (isDisconnected) {
       onWarn(warn: Boily.disconnectMessage ?? 'Internet Connection Lost...');
@@ -102,7 +103,7 @@ abstract class _BoilyStore with Store {
   }
 
   void dispose() {
-    print('base store dispose');
+    log('BoilyStore -> dispose');
     setStatus(StoreStatus.none);
     errorStore.resetErrors();
     successSnack = null;
@@ -114,7 +115,7 @@ abstract class _BoilyStore with Store {
   @protected
   @action
   void onFetch({Function doMore}) {
-    print('store onFetch');
+    log('Boilystore -> onFetch');
     if (isDisconnected) {
       onError(error: Boily.disconnectMessage ?? 'Internet Connection Lost...');
     } else {
@@ -126,7 +127,7 @@ abstract class _BoilyStore with Store {
   @protected
   @action
   void onRequest({Function doMore}) {
-    print('store onRequest');
+    log('Boilystore -> onRequest');
     if (isDisconnected) {
       onError(error: Boily.disconnectMessage ?? 'Internet Connection Lost...');
     } else {
@@ -138,7 +139,7 @@ abstract class _BoilyStore with Store {
   @protected
   @action
   void onSuccess({Function doMore}) {
-    print('store onSuccess');
+    log('Boilystore -> onSuccess');
     setStatus(StoreStatus.success);
     errorStore.errorMessage = null;
     if (doMore != null) doMore();
@@ -147,7 +148,7 @@ abstract class _BoilyStore with Store {
   @protected
   @action
   void onError({@required String error, Function doMore}) {
-    print('store onError, error: $error');
+    log('Boilystore -> onError, error: $error');
     setStatus(StoreStatus.error);
     errorStore.errorMessage = (error?.isNotEmpty ?? false)
         ? error
@@ -160,7 +161,7 @@ abstract class _BoilyStore with Store {
   @protected
   @action
   void onWarn({@required String warn, Function doMore}) {
-    print('store onWarn, error: $warn');
+    log('Boilystore -> onWarn, error: $warn');
     setStatus(StoreStatus.warn);
     errorStore.snackError = (warn != null && warn.isNotEmpty)
         ? warn
@@ -171,7 +172,7 @@ abstract class _BoilyStore with Store {
   @protected
   @action
   void onEmpty({Function doMore}) {
-    print('store onEmpty');
+    log('Boilystore -> onEmpty');
     setStatus(StoreStatus.empty);
     if (doMore != null) doMore();
   }
@@ -179,7 +180,7 @@ abstract class _BoilyStore with Store {
   @protected
   @action
   void setStatus(StoreStatus status) {
-    print('storeStatus: $status');
+    log('BoilyStore.staus -> $status');
     _status = status;
   }
 

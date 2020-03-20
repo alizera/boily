@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:boily/stores/boily_store.dart';
 import 'package:boily/widgets/boily_try_again_widget.dart';
 import 'package:flushbar/flushbar_helper.dart';
@@ -39,14 +41,14 @@ class BoilyWidget extends StatefulWidget {
     _reactions = [
       reaction((_) => store.errorStore.snackError, (String snackError) {
         if (snackError != null && snackError.isNotEmpty) {
-          print('snackError: $snackError');
+          log('snackError: $snackError');
           FlushbarHelper.createError(message: snackError)
               .show(context)
               .then((value) => store.errorStore.resetErrors());
         }
       }),
       reaction((_) => store.successSnack, (String successMessage) {
-        print('successMessage: $successMessage');
+        log('successMessage: $successMessage');
         if (successMessage != null && successMessage.isNotEmpty) {
           FlushbarHelper.createSuccess(message: successMessage)
               .show(context)
@@ -54,7 +56,7 @@ class BoilyWidget extends StatefulWidget {
         }
       }),
       reaction((_) => store.infoSnack, (String successMessage) {
-        print('infoMessage: $successMessage');
+        log('infoMessage: $successMessage');
         if (successMessage != null && successMessage.isNotEmpty) {
           FlushbarHelper.createSuccess(message: successMessage)
               .show(context)
@@ -65,7 +67,7 @@ class BoilyWidget extends StatefulWidget {
   }
 
   void dispose() {
-    print("dispose base page");
+    log("BoilyWidget -> dispose");
     _reactions?.forEach((element) => element());
   }
 
@@ -81,7 +83,6 @@ class _BoilyWidgetState extends State<BoilyWidget> {
 
   @override
   void dispose() {
-    print("dispose base page state");
     widget.dispose();
     super.dispose();
   }
@@ -93,9 +94,9 @@ class _BoilyWidgetState extends State<BoilyWidget> {
         builder: (_) => widget.handleFetchAndErrorStatesLocally
             ? buildMainBody(context)
             : ModalProgressHUD(
-                inAsyncCall: widget.store.isLoading,
-                child: buildMainBody(context),
-              ));
+          inAsyncCall: widget.store.isLoading,
+          child: buildMainBody(context),
+        ));
   }
 
   // ignore: missing_return
@@ -107,10 +108,10 @@ class _BoilyWidgetState extends State<BoilyWidget> {
         }
         return Center(
             child: BoilyTryAgainWidget(
-          errorMessage: widget.store.errorStore.errorMessage,
-          onTryAgain: widget.onTryAgain,
-          buttonText: widget.tryAgainText,
-        ));
+              errorMessage: widget.store.errorStore.errorMessage,
+              onTryAgain: widget.onTryAgain,
+              buttonText: widget.tryAgainText,
+            ));
       case StoreStatus.fetching:
         if (widget.handleFetchAndErrorStatesLocally) {
           return buildChild();
@@ -128,10 +129,9 @@ class _BoilyWidgetState extends State<BoilyWidget> {
         return widget.emptyBody ??
             Center(
               child:
-                  Text(widget.emptyText ?? Boily.emptyWidgetMessage ?? 'Empty!'),
+              Text(widget.emptyText ?? Boily.emptyWidgetMessage ?? 'Empty!'),
             );
     }
-
   }
 
   Widget buildChild() {

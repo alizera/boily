@@ -64,12 +64,6 @@ abstract class _BoilyStore with Store {
   @observable
   bool isDisconnected = false;
 
-  @observable
-  String successSnack;
-
-  @observable
-  String infoSnack;
-
   final BoilyErrorStore errorStore = BoilyErrorStore();
   final Connectivity _connectivity = Connectivity();
   StreamSubscription<ConnectivityResult> _connectionSubscription;
@@ -107,8 +101,7 @@ abstract class _BoilyStore with Store {
 
   void dispose() {
     log('BoilyStore -> dispose');
-    setStatus(StoreStatus.none);
-    resetSnacks();
+//    setStatus(StoreStatus.none);
     errorStore.resetErrors();
     _boilyFormStores?.forEach((element) => element.reset());
     _connectionSubscription.cancel();
@@ -186,19 +179,4 @@ abstract class _BoilyStore with Store {
     _status = status;
   }
 
-  @action
-  void resetSuccessSnack() {
-    successSnack = null;
-  }
-
-  @action
-  void resetInfoSnack() {
-    infoSnack = null;
-  }
-
-  @action
-  void resetSnacks() {
-    resetInfoSnack();
-    resetSuccessSnack();
-  }
 }

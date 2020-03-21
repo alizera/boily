@@ -16,9 +16,13 @@ abstract class _BoilyFormStore with Store {
     _validators = validators;
   }
 
+  @action
   void reset() {}
 
+  @action
   void saveDraft() {}
+
+  bool canSaveDraft() {}
 
   bool isValid() {
     isValidated = true;

@@ -87,10 +87,14 @@ class _BoilyWidgetState extends State<BoilyWidget> {
     return Observer(
         builder: (_) => widget.handleFetchAndErrorStatesLocally
             ? buildMainBody(context)
-            : ModalProgressHUD(
-          inAsyncCall: widget.store.isLoading,
-          child: buildMainBody(context),
-        ));
+            : buildBuiltinLoading(context));
+  }
+
+  ModalProgressHUD buildBuiltinLoading(BuildContext context) {
+    return ModalProgressHUD(
+      inAsyncCall: widget.store.isLoading,
+      child: buildMainBody(context),
+    );
   }
 
   // ignore: missing_return
@@ -110,9 +114,10 @@ class _BoilyWidgetState extends State<BoilyWidget> {
         if (widget.handleFetchAndErrorStatesLocally) {
           return buildChild();
         }
-        return const Center(
+        return Center(
           child: Padding(
-              padding: EdgeInsets.all(20), child: CircularProgressIndicator()),
+              padding: const EdgeInsets.all(20),
+              child: Boily.customFetching ?? const CircularProgressIndicator()),
         );
       case StoreStatus.none:
       case StoreStatus.success:

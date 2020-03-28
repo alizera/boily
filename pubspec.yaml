@@ -1,9 +1,9 @@
 name: boily
 description: A flutter helper for initializing a new project.
-version: 0.0.2
-authors:
-  - Alireza Akbari
-  - alireza.akbari.dev@gmail.com
+version: 0.0.3
+#authors:
+#  - Alireza Akbari
+#  - alireza.akbari.dev@gmail.com
 homepage: https://github.com/alizera/boily
 
 environment:
@@ -12,22 +12,21 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  dio: ^3.0.9
-  mobx: ^1.0.2+1
-  flutter_mobx: ^1.0.1
+  mobx: ^1.1.1
+  flutter_mobx: ^1.1.0
   provider: ^4.0.4
-  #  flushbar: ^1.9.1
+  flushbar: ^1.10.0
   lint: ^1.1.1
-  connectivity: ^0.4.8+1
+  connectivity: ^0.4.8+2
   modal_progress_hud: ^0.1.3
-  flutter_localizations:
-    sdk: flutter
-  flutter_cupertino_localizations: ^1.0.1
+#  flutter_localizations:
+#    sdk: flutter
+#  flutter_cupertino_localizations: ^1.0.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  build_runner: ^1.7.4
-  mobx_codegen: ^1.0.2
+  build_runner: ^1.8.0
+  mobx_codegen: ^1.0.3
 
 flutter:
